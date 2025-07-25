@@ -2,7 +2,6 @@ package pokeapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -49,39 +48,17 @@ func (c *Client) ListLocations(pageURL *string) (MapResponse, error) {
 	return locationResp, nil
 } 
 
-func (c *Client) GetLocationByName(locationName string) (*MapResult, error) {
-	var pageURL *string
+func (c *Client) GetAreaDetails(locationName string) (AreaResponse, error) {
+	url := baseURL + "/location-area/" + locationName
 
-	for {
-		locationResp, err := c.ListLocations(pageURL)
-
-		if err != nil {
-			return nil, err
-		}
-
-		for _, location := range locationResp.Results {
-			if location.Name == locationName {
-				return &location, nil
-			}
-		}
-
-		if locationResp.Next == "" {
-			return nil, fmt.Errorf("location %s not found", locationName)
-		}
-
-		pageURL = &locationResp.Next
-	}
-}
-
-func (c *Client) GetAreaDetails(areaURL string) (AreaResponse, error) {
-	if cachedData, found := c.cache.Get(areaURL); found {
+	if cachedData, found := c.cache.Get(url); found {
 		areaResp := AreaResponse{}
 		err := json.Unmarshal(cachedData, &areaResp)
 		if err == nil {
 			return areaResp, nil
 		}
 	}
-	req, err := http.NewRequest("GET", areaURL, nil)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return AreaResponse{}, err
 	}
@@ -97,7 +74,7 @@ func (c *Client) GetAreaDetails(areaURL string) (AreaResponse, error) {
 		return AreaResponse{}, err
 	}
 
-	c.cache.Add(areaURL, data)
+	c.cache.Add(url, data)
 
 	areaResp := AreaResponse{}
 	err = json.Unmarshal(data, &areaResp)
