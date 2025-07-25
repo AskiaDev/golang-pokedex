@@ -4,7 +4,7 @@ import "fmt"
 
 
 
-func commandMap(cfg *config, args []string) error {
+func commandMap(cfg *config, args ...string) error {
 	fmt.Println("Getting next page of locations")
 	
 	locationResp, err := cfg.pokeapiClient.ListLocations(cfg.nextLocationURL)

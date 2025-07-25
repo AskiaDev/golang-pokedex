@@ -12,7 +12,7 @@ import (
 type CliCommand struct {
 	name string
 	description string
-	callback func(*config, []string) error  // Add []string parameter for arguments
+	callback func(*config, ...string) error
 }
 
 func cleanInput(input string) []string {
